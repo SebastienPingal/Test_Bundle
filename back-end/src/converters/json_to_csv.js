@@ -30,6 +30,24 @@ function check_json_contain_array(leJson){
     return error;
 }
 
+function check_processing_error(leJson) {
+    
+    const name = Object.keys(leJson);
+    for (const property in name) {
+        const propertyName = name[property];
+        if (leJson[name[property]] == "#ERROR PROCESSING"){
+            return name[property];
+        }
+        if (typeof leJson == "object"){
+            console.log ("boucle " + leJson[name[property]]);
+            const nest = check_processing_error(leJson[name[property]]);
+            if (nest != 0){
+                return nest
+            }
+        }
+      }
+    return "0";
+}
 
 const json_error = {
     "1": {
@@ -66,6 +84,45 @@ const json_error = {
         "contact": {
             "mail": "francois@gmail.com",
             "phone": "0456789123"
+        }
+    }
+}
+
+const json_error2 = {
+    "1": {
+        "id": "001",
+        "customer": "Mickael",
+        "items": 7,
+        "contact": {
+            "mail": "mickael@gmail.com",
+            "phone": "0123456789"
+        }
+    },
+    "2": {
+        "id": "002",
+        "customer": "#ERROR PROCESSING",
+        "items": 2,
+        "contact": {
+            "mail": "sarah@gmail.com",
+            "phone": "0234567891"
+        }
+    },
+    "3": {
+        "id": "003",
+        "customer": "Joseph",
+        "items": 1,
+        "contact": {
+            "mail": "joseph@gmail.com",
+            "phone": "0345678912"
+        }
+    },
+    "4": {
+        "id": "004",
+        "customer": "François",
+        "items": 67,
+        "contact": {
+            "mail": "francois@gmail.com",
+            "phone": "#ERROR PROCESSING"
         }
     }
 }
@@ -112,7 +169,11 @@ const json_valid = [
 ]
 
 
-console.log(check_json_lvl(json_error));
-console.log(check_json_contain_array(json_error));
-console.log(check_json_lvl(json_valid));
-console.log(check_json_contain_array(json_valid));
+const jsonsToTest = [json_error2]
+
+for (const element in jsonsToTest){
+    //console.log(jsonsToTest[element]);
+    console.log(check_json_lvl(jsonsToTest[element]));
+    console.log(check_json_contain_array(jsonsToTest[element]));
+    console.log(check_processing_error(jsonsToTest[element]));
+}
