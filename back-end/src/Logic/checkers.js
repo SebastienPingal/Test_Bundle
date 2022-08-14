@@ -1,6 +1,46 @@
-function json_to_csv(json_file){
+function test_json(leJson){
+    let statusCode = []
+    if (check_json_lvl(leJson) > 2 ){
+        statusCode.push(1);
+    };
+    if (check_json_contain_array(leJson) == true){
+        statusCode.push(2);
+    }
+    if (check_processing_error(leJson) != 0){
+        statusCode.push(3);
+        statusCode.push(check_processing_error(leJson));
+    }
+    if (check_json_less_than_64_char(leJson) != 0){
+        statusCode.push(4);
+    }
+    return statusCode;
+}  
+
+function interprete_error(lArray){
+    let log_error = "";
+    for (let t in lArray){
+        switch (lArray[t]){
+            case 1 :
+                log_error += "Json file too deep." + "\n";
+                break;
+            case 2 :
+                log_error += "Json file contain array." + "\n";
+                break;
+            case 3 :
+                log_error += "Processing error at " + lArray[Number(t)+1] + "\n";
+                break;
+            case 4 :
+                log_error += "At least one key is too long"+ "\n";
+                break;
+        }        
+    }
+    if (log_error == ""){
+        console.log("Valid Json")
+    }
+    else {
+        console.log(log_error);
+    }
 }
-   
 
 function check_json_lvl(leJson){
     const stringJson = JSON.stringify(leJson);
@@ -58,7 +98,7 @@ function check_json_less_than_64_char(leJson){
             //console.log ("boucle " + leJson[name[property]]);
             const nest = check_json_less_than_64_char(leJson[name[property]]);
             if (nest != 0){
-                return nest
+                return nest;
             }
         }
       }
@@ -223,13 +263,9 @@ const json_valid = [
     }
 ]
 
-const jsonsToTest = [json_error2, json_error3]
+const jsonsToTest = [json_error, json_error2, json_error3, json_valid ]
 
 for (const element in jsonsToTest){
-    console.log("TEST " + element);
-    console.log(check_json_lvl(jsonsToTest[element]));
-    console.log(check_json_contain_array(jsonsToTest[element]));
-    console.log(check_processing_error(jsonsToTest[element]));
-    console.log(check_json_less_than_64_char(jsonsToTest[element]))
-    console.log("");
+    console.log("CASE "+  element);
+    interprete_error(test_json(jsonsToTest[element]));
 }
