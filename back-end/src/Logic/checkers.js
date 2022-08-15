@@ -1,14 +1,18 @@
 function test_json(leJson){
     let statusCode = []
-    if (check_json_lvl(leJson) > 2 ){
+    if (check_json_lvl(leJson) > 3 ){
         statusCode.push(1);
     };
-    if (check_json_contain_array(leJson) == true){
+    if (check_json_contain_array(leJson).length != 0){
         statusCode.push(2);
     }
     if (check_processing_error(leJson) != 0){
         statusCode.push(3);
-        statusCode.push(check_processing_error(leJson));
+        const temp = check_processing_error(leJson);
+        statusCode.push(temp.length)
+        for (const t in temp){
+        statusCode.push(temp[t]);
+    }
     }
     if (check_json_less_than_64_char(leJson) != 0){
         statusCode.push(4);
@@ -27,7 +31,9 @@ function interprete_error(lArray){
                 log_error += "Json file contain array." + "\n";
                 break;
             case 3 :
-                log_error += "Processing error at " + lArray[Number(t)+1] + "\n";
+                for (let i=2; i <= lArray[Number(t)+1]+1; i++){
+                log_error += "Processing error at " + lArray[Number(t)+ i] + "\n";
+                }
                 break;
             case 4 :
                 log_error += "At least one key is too long"+ "\n";
@@ -43,48 +49,55 @@ function interprete_error(lArray){
 }
 
 function check_json_lvl(leJson){
-    const stringJson = JSON.stringify(leJson);
-    let lvl         = 0;
-    let lvlmax      = 0;
-    for (const char in stringJson){
-        if (stringJson[char] == "{"){
-            lvl++;
-            if (lvl>lvlmax){
-                lvlmax = lvl;
+    const name = Object.keys(leJson);
+    let lvlMax = 1;
+    for (const property in name) {
+        if (typeof leJson[name[property]] == "object"){
+            let lvl = 1;
+            lvl += check_json_lvl(leJson[name[property]]);
+            if (lvl > lvlMax){
+            lvlMax = lvl;
             }
-        } else if (stringJson[char] == "}"){
-            lvl--;
         }
-    }
-    return lvlmax;
+      }
+    return lvlMax;
 }
 
 function check_json_contain_array(leJson){
-    const stringJson  = JSON.stringify(leJson);
-    let error       = false;
-    for (const char in stringJson){
-        if (stringJson[char] == "[" && char != 0){
-            return error = true
+    const name = Object.keys(leJson);
+    let errors = [];
+    for (const property in name) {
+        if (Array.isArray(leJson[name[property]])){
+            errors.push(name[property]);
+            return errors;
+        }
+        if (typeof leJson == "object"){
+            const t = check_json_contain_array(leJson[name[property]])
+            if (t != [] ){
+            errors.push(t);
             }
-    }
-    return error;
+        }
+      }
+    return errors.flat();
 }
 
 function check_processing_error(leJson) {
     const name = Object.keys(leJson);
+    let errors = [];
     for (const property in name) {
         if (leJson[name[property]] == "#ERROR PROCESSING"){
-            return name[property];
+            errors.push(name[property]);
+            return errors;
         }
         if (typeof leJson == "object"){
             //console.log ("boucle " + leJson[name[property]]);
-            const nest = check_processing_error(leJson[name[property]]);
-            if (nest != 0){
-                return nest
+            const t = check_processing_error(leJson[name[property]])
+            if (t != 0 ){
+            errors.push(t);
             }
         }
       }
-    return "0";
+    return errors.flat();
 }
 
 function check_json_less_than_64_char(leJson){
