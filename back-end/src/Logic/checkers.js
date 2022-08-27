@@ -48,6 +48,10 @@ function interprete_error(lArray){
     }
 }
 
+function is_json_Ok(leJson){
+    return interprete_error(test_json(leJson));
+}
+
 function check_json_lvl(leJson){
     const name = Object.keys(leJson);
     let lvlMax = 1;
@@ -278,7 +282,9 @@ const json_valid = [
 
 const jsonsToTest = [json_error, json_error2, json_error3, json_valid ]
 
+/*
 for (const element in jsonsToTest){
     console.log("CASE "+  element);
     interprete_error(test_json(jsonsToTest[element]));
 }
+*/
