@@ -158,33 +158,29 @@ const json_valid = [
 
 const jsonsToConvert = [json_error, json_error2, json_error3, json_valid ]
 
-function convert_json_to_csv (leJson){
-    const name = Object.keys(leJson);
-    
-    let leCsv = "";
-    for (const t in name){
-        leCsv += name[t] + "; ";
-    }
-    leCsv += "\n"
-    for (const t in name) {
-        if (typeof leJson[name[t]] == "object"){
-            leCsv += "\n"; 
-            return leCsv += convert_json_to_csv (leJson[name[t]]);
+function json_to_csv (leJson){
+    const sprt      = " ; " ;
+    let header      = []    ;
+    let content     = []    ;
+
+    for (const i in leJson){
+        for (const [key, value] of Object.entries(leJson[i])){
+                if (typeof value == "object"){
+                    for(const [k, v] of Object.entries(leJson[i][key])){
+                        if (header.includes(key + "_" + k) == false){
+                            header.push(key + "_" + k);
+                        }
+                    }
+                }
+                else {
+                    if (header.includes(key) == false){
+                        header.push(key);
+                    }
+                }
         }
-        else {
-            leCsv += leJson[name[t]] + "; ";
-        }
     }
-    leCsv += "\n";
-    //console.log(leCsv);
-    return leCsv;
+   return header;
 }
 
-/*for (const element in jsonsToTest){
-    console.log("CASE "+  element);
-    if (is_json_Ok(jsonsToTest[element])== "Valid Json"){
-        convert_json_to_csv(jsonsToTest[element]);
-    }
-}*/
 
-console.log(convert_json_to_csv (json_valid));
+console.log(json_to_csv (json_valid));
